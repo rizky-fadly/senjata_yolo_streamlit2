@@ -5,13 +5,25 @@ import uuid
 from PIL import Image
 import shutil
 
+# Bersihkan cache jika diminta
+if st.sidebar.button("🧹 Clear Cache"):
+    st.cache_resource.clear()
+    st.cache_data.clear()
+    if os.path.exists("runs"):
+        shutil.rmtree("runs")
+    st.sidebar.success("Cache berhasil dibersihkan. Silakan muat ulang halaman.")
+
 # Setup folders
 UPLOAD_FOLDER = "static/uploads"
 PREDICT_FOLDER = "runs/detect/predict"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Load YOLOv8 model
-model = YOLO("best.pt")
+@st.cache_resource
+def load_model():
+    return YOLO("best.pt")
+
+model = load_model()
 
 st.title("Helmet Detection with YOLOv8")
 
