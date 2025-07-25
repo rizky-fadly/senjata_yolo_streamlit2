@@ -14,7 +14,7 @@ PREDICT_FOLDER = "runs/detect/predict"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Load YOLOv8 model
-model = YOLO("best.pt")
+model = YOLO("best_weights_only.pt")
 
 st.title("Helmet Detection with YOLOv8")
 
