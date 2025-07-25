@@ -1,4 +1,9 @@
+# --- Core libraries ---
 streamlit
 ultralytics==8.1.28
-opencv-python-headless==4.9.0.80
 Pillow
+
+# --- Fix for OpenCV conflict in headless environments ---
+# Uninstall opencv-python if auto-installed by ultralytics
+--extra-index-url https://pypi.org/simple
+opencv-python-headless==4.9.0.80
