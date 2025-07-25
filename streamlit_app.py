@@ -5,6 +5,9 @@ import uuid
 from PIL import Image
 import shutil
 
+import cv2
+print("OpenCV Version:", cv2.__version__)
+
 # Setup folders
 UPLOAD_FOLDER = "static/uploads"
 PREDICT_FOLDER = "runs/detect/predict"
