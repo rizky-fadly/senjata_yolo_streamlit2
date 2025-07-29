@@ -13,7 +13,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Load YOLOv8 model
 model = YOLO("best.pt")
 
-st.title("Helmet Detection with YOLOv8")
+st.title("Gun Detection")
 
 # Upload file
 uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
