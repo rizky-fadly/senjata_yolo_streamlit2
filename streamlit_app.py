@@ -5,45 +5,45 @@ import uuid
 from PIL import Image
 import shutil
 
-# Setup folders
-UPLOAD_FOLDER = "static/uploads"
-PREDICT_FOLDER = "runs/detect/predict"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Inisialisasi folder
+UPLOAD_DIR = "static/uploads"
+OUTPUT_DIR = "runs/detect/predict"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Load YOLOv8 model
-model = YOLO("best.pt")
 
-st.title("Gun Detection")
+detector = YOLO("best.pt")
 
-# Upload file
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+st.title("Gun Detection App")
 
-if uploaded_file is not None:
-    # Simpan file yang diupload
-    filename = str(uuid.uuid4()) + ".jpg"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    with open(filepath, "wb") as f:
-        f.write(uploaded_file.getbuffer())
+# Upload gambar
+image_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
 
-    # Hapus folder predict sebelumnya (jika ada)
-    if os.path.exists(PREDICT_FOLDER):
-        shutil.rmtree(PREDICT_FOLDER)
+if image_file:
+    # Simpan gambar dengan nama acak
+    unique_name = f"{uuid.uuid4()}.jpg"
+    saved_path = os.path.join(UPLOAD_DIR, unique_name)
+    with open(saved_path, "wb") as f:
+        f.write(image_file.getbuffer())
 
-    # Jalankan prediksi
-    results = model(filepath, save=True)
+    # Bersihkan folder output sebelumnya
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
 
-    # Ambil path hasil deteksi
-    result_path = os.path.join(results[0].save_dir, filename)
+    # Deteksi objek dalam gambar
+    detection_result = detector(saved_path, save=True)
 
-    # Tampilkan hasil deteksi
-    st.subheader("Detected Image")
-    st.image(result_path, use_column_width=True)
+    # Ambil path dari hasil prediksi
+    output_image_path = os.path.join(detection_result[0].save_dir, unique_name)
 
-    # Tombol untuk download hasil deteksi
-    with open(result_path, "rb") as file:
-        btn = st.download_button(
-            label="Download result",
-            data=file,
-            file_name="detected_" + filename,
+    # Tampilkan gambar hasil deteksi
+    st.subheader("Detection Result")
+    st.image(output_image_path, use_column_width=True)
+
+    # Opsi download gambar hasil
+    with open(output_image_path, "rb") as img_file:
+        st.download_button(
+            label="Download Detected Image",
+            data=img_file,
+            file_name=f"result_{unique_name}",
             mime="image/jpeg"
         )
