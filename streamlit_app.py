@@ -10,9 +10,12 @@ UPLOAD_DIR = "static/uploads"
 OUTPUT_DIR = "runs/detect/predict"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# Load model dan perbaiki urutan label
-detector = YOLO("best.pt")
-detector.names = ['pisau', 'pistol']  # Sesuai dataset.yaml
+# Load model
+model_path = "best.pt"
+detector = YOLO(model_path)
+
+# Custom names mapping jika model.names tidak sesuai (tanpa menimpa atribut internal)
+custom_names = ['pisau', 'pistol']
 
 st.title("Gun & Knife Detection App")
 
@@ -43,7 +46,7 @@ if gambar:
     for box in results[0].boxes:
         cls_id = int(box.cls[0])
         conf = float(box.conf[0])
-        label = detector.names[cls_id]
+        label = custom_names[cls_id] if cls_id < len(custom_names) else f"Class {cls_id}"
         st.write(f"- Kelas: {label}, Confidence: {conf:.2f}")
 
     # Download tombol
