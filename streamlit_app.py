@@ -10,39 +10,46 @@ UPLOAD_DIR = "static/uploads"
 OUTPUT_DIR = "runs/detect/predict"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
+# Load model dan perbaiki urutan label
 detector = YOLO("best.pt")
+detector.names = ['pisau', 'pistol']  # Sesuai dataset.yaml
 
-st.title("Gun Detection App")
+st.title("Gun & Knife Detection App")
 
 # Upload gambar
-image_file = st.file_uploader("Choose an image file", type=["jpg", "jpeg", "png"])
+gambar = st.file_uploader("Pilih gambar", type=["jpg", "jpeg", "png"])
 
-if image_file:
-    # Simpan gambar dengan nama acak
+if gambar:
     unique_name = f"{uuid.uuid4()}.jpg"
     saved_path = os.path.join(UPLOAD_DIR, unique_name)
     with open(saved_path, "wb") as f:
-        f.write(image_file.getbuffer())
+        f.write(gambar.getbuffer())
 
-    # Bersihkan folder output sebelumnya
+    # Bersihkan output lama
     if os.path.exists(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
 
-    # Deteksi objek dalam gambar
-    detection_result = detector(saved_path, save=True)
+    # Jalankan deteksi
+    results = detector(saved_path, save=True)
 
-    # Ambil path dari hasil prediksi
-    output_image_path = os.path.join(detection_result[0].save_dir, unique_name)
+    # Ambil hasil gambar
+    output_image_path = os.path.join(results[0].save_dir, unique_name)
 
-    # Tampilkan gambar hasil deteksi
-    st.subheader("Detection Result")
+    # Tampilkan hasil
+    st.subheader("Hasil Deteksi")
     st.image(output_image_path, use_column_width=True)
 
-    # Opsi download gambar hasil
+    st.subheader("Detail Deteksi")
+    for box in results[0].boxes:
+        cls_id = int(box.cls[0])
+        conf = float(box.conf[0])
+        label = detector.names[cls_id]
+        st.write(f"- Kelas: {label}, Confidence: {conf:.2f}")
+
+    # Download tombol
     with open(output_image_path, "rb") as img_file:
         st.download_button(
-            label="Download Detected Image",
+            label="Download Gambar Hasil",
             data=img_file,
             file_name=f"result_{unique_name}",
             mime="image/jpeg"
